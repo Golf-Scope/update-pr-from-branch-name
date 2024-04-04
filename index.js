@@ -1,35 +1,12 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
-
-const ISSUE_TICKET_CONTAINER_PUNCTUATION = {
-    'none': '',
-    'square-brackets': '[]',
-    'parentheses': '()',
-    'curly-brackets': '{}',
-    'angle-brackets': '<>',
-    'double-quotes': '""',
-    'single-quotes': "''"
-}
-
 async function run() {
     try {
         const inputs = {
             token: core.getInput('repo-token'),
-            issueTrackerUrl: core.getInput('issue-tracker-url'),
             issueTicketRegex: core.getInput('issue-ticket-regex'),
-            issueTicketSeparator: core.getInput('issue-ticket-separator'),
-            issueTicketContainerPunctuation: core.getInput('issue-ticket-container-punctuation')
         }
-
-        const issueTicketContainerPunctuationPossibleValues = Object.keys(ISSUE_TICKET_CONTAINER_PUNCTUATION);
-        if(!issueTicketContainerPunctuationPossibleValues.includes(inputs.issueTicketContainerPunctuation)) {
-            core.setFailed(`Issue ticket container punctuation ${inputs.issueTicketContainerPunctuation} is not allowed.\n
-            Allowed values are ${issueTicketContainerPunctuationPossibleValues}`);
-            return 1;
-        }
-        const issueTicketContainerPunctuation = ISSUE_TICKET_CONTAINER_PUNCTUATION[inputs.issueTicketContainerPunctuation];
 
         const baseBranchName = github.context.payload.pull_request.base.ref;
         core.info(`Base branch name: ${baseBranchName}`);
@@ -44,7 +21,7 @@ async function run() {
         const issueTicketRegex = new RegExp(inputs.issueTicketRegex);
         core.info(`Issue ticket regex: ${issueTicketRegex}`);
 
-        const [_, issueTicketNumber, issueTicketSummary] = issueTicket.split(issueTicketRegex);
+        const [_, issueTicketNumber] = issueTicket.split(issueTicketRegex);
         core.info(`Issue ticket number: ${issueTicketNumber}`);
 
         if(!issueTicketNumber) {
@@ -52,27 +29,11 @@ async function run() {
             return 0;
         }
 
-        const issueTicketSummaryNormalized = capitalize(issueTicketSummary
-          .replace(new RegExp(inputs.issueTicketSeparator, 'gi'), ' ').trim());
-        core.info(`Issue ticket summary: ${issueTicketSummaryNormalized}`);
+        let title = github.context.payload.pull_request.title || '';
+        let body = github.context.payload.pull_request.body || '';
 
-        const issueTicketUrl = `[${issueTicketNumber}](${inputs.issueTrackerUrl
-          .replace(/\/$/, '')}/${issueTicketNumber})`;
-
-        core.info(`Issue ticket url: ${issueTicketUrl}`);
-
-        const title = `${issueTicketContainerPunctuation[0] ?? ''} ${issueTicketNumber} ${issueTicketContainerPunctuation[1] ?? ''} ${issueTicketSummaryNormalized}`;
-        core.info(`Pull Request title will be changed to: ${title}`);
-
-        const initialBody = github.context.payload.pull_request.body ?? '';
-        let body = initialBody;
-        const bodyPrefix = `This PR is related to ${issueTicketUrl}`;
-        if(body.includes(bodyPrefix)) {
-            core.info(`Body already contains ${bodyPrefix}. Skipping...`);
-        } else {
-            body = `${bodyPrefix}\n\n${initialBody}`;
-            core.info(`Pull Request body will be changed to: : ${body}`);
-        }
+        title = `[${issueTicketNumber}] ` + title;
+        body = body + `\n\nJira Ticket: [${issueTicketNumber}]`
 
         const request = {
             owner: github.context.repo.owner,
@@ -87,13 +48,13 @@ async function run() {
 
         core.info(`Response: ${response.status}`);
         if (response.status !== 200) {
-            core.error('Updating the pull request has been failed');
+            core.error('Updating the pull request failed');
             return 1;
         }
 
         core.setOutput('issue-ticket-number', issueTicketNumber);
-        core.setOutput('issue-ticket-url', issueTicketUrl);
         core.setOutput('pull-request-title', request.title);
+        core.setOutput('pull-request-body', request.body);
     } catch (error) {
         core.setFailed(error.message);
         return 1;
