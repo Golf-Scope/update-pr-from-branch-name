@@ -9,14 +9,6 @@ inputs:
   repo-token:
     description: The GITHUB_TOKEN secret
     required: true
-  branch-prefix:
-    description: The prefix of branch name | pass a comma separated list to match multiple prefixes | leave empty to match all branches
-    required: false
-    default: ''
-  branch-prefix-separator:
-    description: The separator between branch prefix and jira ticket
-    required: false
-    default: '/'
   issue-tracker-url:
     description: The URL of Issue tracker
     required: true
@@ -40,5 +32,5 @@ outputs:
   pull-request-title:
     description: The Pull Request title
 runs:
-  using: node16
+  using: node20
   main: action/index.js

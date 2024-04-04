@@ -9,7 +9,6 @@ The **Update Pull Request from Branch** GitHub Action is designed to automatical
 ### Features
 
 - Automatically updates the PR title and body based on the branch name.
-- Supports custom branch prefixes.
 - Configurable issue ticket regex for matching issue ticket numbers.
 - Customizable issue ticket separator.
 - Allows choosing different types of punctuation for wrapping the issue ticket in the PR title.
