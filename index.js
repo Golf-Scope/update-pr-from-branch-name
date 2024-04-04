@@ -42,10 +42,17 @@ async function run() {
         const branchPrefixes = inputs.branchPrefix.split(',').filter(Boolean);
         core.info(`Branch prefixes: ${branchPrefixes}`)
 
-        const [prefix, issueTicket] = headBranchName.split(inputs.branchPrefixSeparator);
-        if (!issueTicket) {
-            core.info(`Branch prefix separator "${inputs.branchPrefixSeparator}" is not found in branch name. Skipping Pull Request update...`);
-            return 0;
+        let issueTicket = headBranchName;
+        let prefix = '';
+
+        if (inputs.branchPrefixSeparator) {
+            const splitResult = headBranchName.split(inputs.branchPrefixSeparator);
+            prefix = splitResult[0];
+            issueTicket = splitResult[1];
+            if (!issueTicket) {
+                core.info(`Branch prefix separator "${inputs.branchPrefixSeparator}" is not found in branch name. Skipping Pull Request update...`);
+                return 0;
+            }
         }
 
         if(!inputs.branchPrefix) {
