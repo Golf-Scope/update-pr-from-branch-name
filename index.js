@@ -17,8 +17,6 @@ async function run() {
     try {
         const inputs = {
             token: core.getInput('repo-token'),
-            branchPrefix: core.getInput('branch-prefix'),
-            branchPrefixSeparator: core.getInput('branch-prefix-separator'),
             issueTrackerUrl: core.getInput('issue-tracker-url'),
             issueTicketRegex: core.getInput('issue-ticket-regex'),
             issueTicketSeparator: core.getInput('issue-ticket-separator'),
@@ -39,27 +37,7 @@ async function run() {
         const headBranchName = github.context.payload.pull_request.head.ref;
         core.info(`Head branch name: ${headBranchName}`);
 
-        const branchPrefixes = inputs.branchPrefix.split(',').filter(Boolean);
-        core.info(`Branch prefixes: ${branchPrefixes}`)
-
-        let issueTicket = headBranchName;
-
-        if(!inputs.branchPrefix) {
-            core.info('Branch prefix is not set. Skipping...');
-        } else {
-            const splitResult = headBranchName.split(inputs.branchPrefixSeparator);
-            const prefix = splitResult[0];
-            issueTicket = splitResult[1];
-            if (!issueTicket) {
-                core.info(`Branch prefix separator "${inputs.branchPrefixSeparator}" is not found in branch name. Skipping Pull Request update...`);
-                return 0;
-            }
-
-            if (!branchPrefixes.includes(prefix)) {
-                core.setFailed(`Branch prefix ${prefix} is not allowed. Allowed prefixes are ${branchPrefixes}`);
-                return 1;
-            }
-        }
+        const issueTicket = headBranchName;
 
         core.info(`Issue ticket: ${issueTicket}`);
 

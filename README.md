@@ -19,8 +19,6 @@ The **Update Pull Request from Branch** GitHub Action is designed to automatical
 This action requires the following inputs:
 
 - `repo-token` (required): The `GITHUB_TOKEN` secret for making GitHub API requests. It should have write access to the repository.
-- `branch-prefix` (optional): The prefix of the branch name. You can pass a comma-separated list to match multiple prefixes. Leave it empty to match all branches.
-- `branch-prefix-separator` (optional): The separator used between the branch prefix and the Jira ticket. Default is `'/'`.
 - `issue-tracker-url` (required): The URL of the issue tracker where issue ticket links will point to.
 - `issue-ticket-regex` (optional): A regular expression to match and extract the issue ticket number from the branch name. Default is `'([A-Z]+-\d+)'`.
 - `issue-ticket-separator` (optional): The separator used between the issue ticket number and the issue ticket summary. Default is `'-'`.
@@ -59,8 +57,6 @@ jobs:
         uses: kigary/update-pr-from-branch-name@v1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          branch-prefix: feat,bugfix
-          branch-prefix-separator: _
           issue-tracker-url: https://example.com/issues
           issue-ticket-regex: '([A-Z]+-\d+)'
           issue-ticket-separator: -
@@ -74,13 +70,12 @@ In this example, the action will trigger when a pull request is opened. Customiz
 
 ## Behavior
 
-1. The action checks if the provided `branch-prefix` matches the prefix in the branch name. If not, it fails the workflow.
-2. It extracts the issue ticket number from the branch name using the specified `issue-ticket-regex` and `issue-ticket-separator`.
-3. It normalizes the issue ticket summary by capitalizing the first letter and replacing separators with spaces.
-4. The issue ticket URL is constructed using the `issue-tracker-url` and issue ticket number.
-5. The PR title is updated with the issue ticket number enclosed in the specified container punctuation and the normalized summary.
-6. The action appends the issue ticket URL to the PR body.
-7. If the PR update is successful, relevant outputs are set for use in subsequent steps.
+1. The action extracts the issue ticket number from the branch name using the specified `issue-ticket-regex` and `issue-ticket-separator`.
+2. It normalizes the issue ticket summary by capitalizing the first letter and replacing separators with spaces.
+3. The issue ticket URL is constructed using the `issue-tracker-url` and issue ticket number.
+4. The PR title is updated with the issue ticket number enclosed in the specified container punctuation and the normalized summary.
+5. The action appends the issue ticket URL to the PR body.
+6. If the PR update is successful, relevant outputs are set for use in subsequent steps.
 
 ## Conclusion
 
