@@ -9843,7 +9843,7 @@ async function run() {
         let body = github.context.payload.pull_request.body || '';
 
         title = `[${issueTicketNumber}] ` + title;
-        body = body + `\n\nJira Ticket: [${issueTicketNumber}]`
+        body = body + `\n\n[${issueTicketNumber}](https://golfplusvr.atlassian.net/browse/${issueTicketNumber})`
 
         const request = {
             owner: github.context.repo.owner,

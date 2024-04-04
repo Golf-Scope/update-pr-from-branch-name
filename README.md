@@ -60,7 +60,7 @@ In this example, the action will trigger when a pull request is opened. Customiz
 
 1. The action extracts the issue ticket number from the branch name using the specified `issue-ticket-regex`.
 2. The PR title is prepended with the issue ticket number like `[GOLF-123]`
-3. The action appends the issue ticket number to the PR body, which will trigger the Jira integration to turn it into a link.
+3. The action appends an issue ticket link to the PR body.
 
 ## Deploying
 ```bash
